@@ -21,6 +21,10 @@
 		"cvolton.level-id-api": {
 			"version": "2.0.0-beta.1",
 			"importance": "required"
+		},
+		"hjfod.gmd-api": {
+			"version": "1.4.4",
+			"importance": "required"
 		}
 	},
 	"resources": {

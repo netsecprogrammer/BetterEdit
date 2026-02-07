@@ -1,12 +1,13 @@
 #pragma once
 
 #include <Geode/DefaultInclude.hpp>
+#include <Geode/loader/Event.hpp>
 #include "Backup.hpp"
 
 using namespace geode::prelude;
 
-struct UpdateBackupListEvent : public Event {
-    bool closeList = false;
+struct UpdateBackupListEvent final : public geode::Event<UpdateBackupListEvent, bool(bool)> {
+    using Event::Event;
 };
 
 class BackupItem : public CCNode {

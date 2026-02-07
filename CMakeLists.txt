@@ -15,7 +15,7 @@ file(GLOB SOURCES
 	src/features/scaling/*.cpp
 	src/features/ZoomLevelText/*.cpp
 	src/features/about/*.cpp
-	# src/features/backups/*.cpp  # Disabled: requires hjfod.gmd-api (not available for v5)
+	src/features/backups/*.cpp
 	src/features/ViewTab/*.cpp
 	src/features/scripting/*.cpp
 	# src/features/supporters/*.cpp  # Disabled: requires server/web API rewrite for v5

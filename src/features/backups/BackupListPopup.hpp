@@ -12,7 +12,7 @@ protected:
     Ref<GJGameLevel> m_level;
     ScrollLayer* m_scrollLayer;
     CCLabelBMFont* m_statusLabel;
-    EventListener<EventFilter<UpdateBackupListEvent>> m_updateListListener;
+    geode::ListenerHandle m_updateListListener;
 
     bool init(GJGameLevel* level);
     void updateList();

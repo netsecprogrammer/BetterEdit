@@ -3,7 +3,10 @@
 #include <Geode/ui/Scrollbar.hpp>
 #include <Geode/ui/General.hpp>
 
-bool BackupListPopup::setup(GJGameLevel* level) {
+bool BackupListPopup::init(GJGameLevel* level) {
+    if (!Popup::init(350, 270))
+        return false;
+
     m_level = level;
 
     this->setTitle(fmt::format("Backups for {}", level->m_levelName));
@@ -43,14 +46,13 @@ bool BackupListPopup::setup(GJGameLevel* level) {
     );
     m_buttonMenu->addChildAtPosition(createBackupBtn, Anchor::BottomRight, ccp(-10, 10));
 
-    m_updateListListener.bind([this](UpdateBackupListEvent* ev) {
-        if (ev->closeList) {
+    m_updateListListener = UpdateBackupListEvent().listen([this](bool closeList) {
+        if (closeList) {
             this->onClose(nullptr);
         }
         else {
             this->updateList();
         }
-        return ListenerResult::Propagate;
     });
     this->updateList();
 
@@ -88,7 +90,7 @@ void BackupListPopup::onNewBackup(CCObject*) {
 
 BackupListPopup* BackupListPopup::create(GJGameLevel* level) {
     auto ret = new BackupListPopup();
-    if (ret && ret->initAnchored(350, 270, level)) {
+    if (ret && ret->init(level)) {
         ret->autorelease();
         return ret;
     }
