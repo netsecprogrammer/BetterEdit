@@ -12,12 +12,13 @@ using namespace geode::prelude;
 using namespace pro;
 using namespace pro::server;
 
-class ActivateNewDevicePopup : public Popup<> {
+class ActivateNewDevicePopup : public Popup {
 protected:
     EventListener<ServerRequest<CreatedProductKey>> m_listener;
     LoadingSpinner* m_loading;
 
-    bool setup() override {
+    bool init() {
+        if (!Popup::init(290, 200)) return false;
         this->setTitle("Activate New Device");
 
         m_loading = LoadingSpinner::create(45);
@@ -105,7 +106,7 @@ protected:
 public:
     static ActivateNewDevicePopup* create() {
         auto ret = new ActivateNewDevicePopup();
-        if (ret && ret->initAnchored(290, 200)) {
+        if (ret && ret->init()) {
             ret->autorelease();
             return ret;
         }
@@ -114,7 +115,8 @@ public:
     }
 };
 
-bool MySupportPopup::setup() {
+bool MySupportPopup::init() {
+    if (!Popup::init(358, 270, "GJ_square02.png")) return false;
     m_noElasticity = true;
 
     this->setTitle("Supporter Status");
@@ -491,7 +493,7 @@ void MySupportPopup::onActivateNewDevice(CCObject*) {
 
 MySupportPopup* MySupportPopup::create() {
     auto ret = new MySupportPopup();
-    if (ret && ret->initAnchored(358, 270, "GJ_square02.png")) {
+    if (ret && ret->init()) {
         ret->autorelease();
         return ret;
     }

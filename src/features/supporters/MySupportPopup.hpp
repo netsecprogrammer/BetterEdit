@@ -7,7 +7,7 @@
 
 using namespace geode::prelude;
 
-class MySupportPopup : public PopupWithCorners<> {
+class MySupportPopup : public PopupWithCorners {
 protected:
     EventListener<pro::server::ServerRequest<pro::server::MySupport>> m_mySupportListener;
     CCNode* m_playerInfo;
@@ -22,7 +22,7 @@ protected:
     LoadingSpinner* m_devicesLoading;
     CCLabelBMFont* m_errorLabel;
 
-    bool setup() override;
+    bool init();
 
     void reloadData();
     void onLoadData(pro::server::ServerRequest<pro::server::MySupport>::Event* event);

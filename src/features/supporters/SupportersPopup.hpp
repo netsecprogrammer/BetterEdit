@@ -8,7 +8,7 @@
 using namespace geode::prelude;
 
 namespace pro {
-    class SupportersPopup : public Popup<> {
+    class SupportersPopup : public Popup {
     protected:
         EventListener<server::ServerRequest<server::Supporters>> m_reqListener;
         EventListener<server::ServerRequest<server::MySupport>> m_mySupportListener;
@@ -22,7 +22,7 @@ namespace pro {
         size_t m_maxPage = 0;
         CCMenu* m_mySupportMenu = nullptr;
 
-        bool setup() override;
+        bool init();
         void loadPage(size_t page);
         void onLoadPage(server::ServerRequest<server::Supporters>::Event* event);
         void onLoadMySupport(server::ServerRequest<server::MySupport>::Event* event);

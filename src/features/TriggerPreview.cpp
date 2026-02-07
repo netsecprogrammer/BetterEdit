@@ -19,7 +19,7 @@ class $modify(TriggerPreviewUI, EditorUI) {
         std::pair<float, float> previewRange;
         CCMenuItemToggler* previewToggle = nullptr;
         CCMenuItemSpriteExtra* previewKnob = nullptr;
-        OnUIHide onUIHide;
+        geode::ListenerHandle onUIHide;
     };
 
     $override
@@ -42,10 +42,9 @@ class $modify(TriggerPreviewUI, EditorUI) {
             menu->addChild(m_fields->previewToggle);
             menu->updateLayout();
 
-            m_fields->onUIHide.setFilter(this);
-            m_fields->onUIHide.bind([this](UIShowEvent* ev) {
+            m_fields->onUIHide = UIShowEvent(this).listen([this](EditorUI* ui, bool show) {
                 const bool PREVIEWING = !m_fields->preview.empty();
-                m_fields->previewToggle->setVisible(PREVIEWING || ev->show);
+                m_fields->previewToggle->setVisible(PREVIEWING || show);
             });
 
             this->schedule(schedule_selector(TriggerPreviewUI::onPreviewFrame));

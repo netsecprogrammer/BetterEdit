@@ -3,9 +3,10 @@
 #include <Geode/ui/GeodeUI.hpp>
 #include <Geode/ui/MDTextArea.hpp>
 #include <Geode/binding/ButtonSprite.hpp>
+#include <Geode/binding/FLAlertLayer.hpp>
 #include <Geode/utils/web.hpp>
-#include <features/supporters/SupportersPopup.hpp>
-#include <features/supporters/ActivateLicensePopup.hpp>
+#include <features/supporters/Pro.hpp>
+// SupportersPopup.hpp and ActivateLicensePopup.hpp excluded: depend on server API not yet ported to v5
 
 struct Dev {
     const char* name;
@@ -42,7 +43,8 @@ struct Dev {
     }
 };
 
-bool AboutBEPopup::setup() {
+bool AboutBEPopup::init() {
+    if (!Popup::init(358.f, 270.f, "GJ_square02.png")) return false;
     m_noElasticity = true;
 
     this->setTitle("About BetterEdit");
@@ -202,24 +204,18 @@ void AboutBEPopup::onClose(CCObject* sender) {
 }
 
 void AboutBEPopup::onSupport(CCObject*) {
-    createQuickPopup(
+    FLAlertLayer::create(
         "Support BetterEdit",
-        "The <cp>Supporter Perks</c> for BetterEdit are <co>about to be "
-        "discontinued</c> as my financial situation has gotten better and "
-        "<cj>I don't want to paywall features</c>. If you still want to support the mod "
-        "and donate a thank you, feel free to do so, but be aware that the only "
-        "perk I can offer is your name in the Supporters List!",
-        "OK", "Activate Existing License",
-        380,
-        [](auto, bool btn2) {
-            if (btn2) {
-                ActivateLicensePopup::tryShowIfLoggedIn();
-            }
-        }
-    );
+        "Supporter features are not yet available in this version.",
+        "OK"
+    )->show();
 }
 void AboutBEPopup::onSupporters(CCObject*) {
-    pro::SupportersPopup::create()->show();
+    FLAlertLayer::create(
+        "Supporters",
+        "The supporters list is not yet available in this version.",
+        "OK"
+    )->show();
 }
 
 void AboutBEPopup::onSuggestFeature(CCObject*) {
@@ -299,7 +295,7 @@ void AboutBEPopup::onDevLink(CCObject* sender) {
 
 AboutBEPopup* AboutBEPopup::create() {
     auto ret = new AboutBEPopup();
-    if (ret && ret->initAnchored(358.f, 270.f, "GJ_square02.png")) {
+    if (ret && ret->init()) {
         ret->autorelease();
         return ret;
     }
@@ -307,8 +303,9 @@ AboutBEPopup* AboutBEPopup::create() {
     return nullptr;
 }
 
-bool SpecialThanksPopup::setup() {
-    auto specialThanks = 
+bool SpecialThanksPopup::init() {
+    if (!Popup::init(280, 210, "GJ_square01.png")) return false;
+    auto specialThanks =
         "## Donators <3\n\n"
         " * <cp>Alphalaneous</c>\n"
         " * <cg>KontrollFreek</c>\n"
@@ -340,7 +337,7 @@ bool SpecialThanksPopup::setup() {
 
 SpecialThanksPopup* SpecialThanksPopup::create() {
     auto ret = new SpecialThanksPopup();
-    if (ret && ret->initAnchored(280, 210, "GJ_square01.png")) {
+    if (ret && ret->init()) {
         ret->autorelease();
         return ret;
     }

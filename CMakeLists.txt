@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.21)
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 if ("${CMAKE_SYSTEM_NAME}" STREQUAL "iOS" OR IOS)
     set(CMAKE_OSX_ARCHITECTURES "arm64")
@@ -15,15 +15,18 @@ file(GLOB SOURCES
 	src/features/scaling/*.cpp
 	src/features/ZoomLevelText/*.cpp
 	src/features/about/*.cpp
-	src/features/backups/*.cpp
+	# src/features/backups/*.cpp  # Disabled: requires hjfod.gmd-api (not available for v5)
 	src/features/ViewTab/*.cpp
 	src/features/scripting/*.cpp
-	src/features/supporters/*.cpp
-	src/server/*.cpp
+	# src/features/supporters/*.cpp  # Disabled: requires server/web API rewrite for v5
+	# src/server/*.cpp  # Disabled: web API completely changed in v5
 	src/editor/*.cpp
 	src/utils/*.cpp
 	src/*.cpp
 )
+
+# Exclude files that depend on unavailable v5 dependencies
+list(FILTER SOURCES EXCLUDE REGEX ".*Keybinds\\.cpp$")
 
 add_library(${PROJECT_NAME} SHARED ${SOURCES})
 target_include_directories(${PROJECT_NAME} PUBLIC "src")
@@ -37,13 +40,12 @@ endif()
 add_subdirectory($ENV{GEODE_SDK} ${CMAKE_CURRENT_BINARY_DIR}/geode SYSTEM)
 
 setup_geode_mod(${PROJECT_NAME})
-# For server stuff we need some lib for RSA and rn we are using wolfSSL because 
-# dank_meme recommended it
-set(WOLFSSL_ENCKEYS ON)
-CPMAddPackage("gh:wolfSSL/wolfssl@5.8.0-stable")
-target_link_libraries(${PROJECT_NAME} wolfssl)
-target_compile_definitions(wolfssl PUBLIC WOLFSSL_PUB_PEM_TO_DER)
-target_compile_definitions(${PROJECT_NAME} PUBLIC WOLFSSL_PUB_PEM_TO_DER)
+# wolfSSL disabled: server/OpenSSL.cpp excluded, Pro verification stubbed for v5
+# set(WOLFSSL_ENCKEYS ON)
+# CPMAddPackage("gh:wolfSSL/wolfssl@5.8.0-stable")
+# target_link_libraries(${PROJECT_NAME} wolfssl)
+# target_compile_definitions(wolfssl PUBLIC WOLFSSL_PUB_PEM_TO_DER)
+# target_compile_definitions(${PROJECT_NAME} PUBLIC WOLFSSL_PUB_PEM_TO_DER)
 
 # Include QuickJS for scripting
 CPMAddPackage("gh:HJfod/quickjs#3073f11")
@@ -65,7 +67,5 @@ else()
 		-Wno-extra-semi
 		# QuickJS
 		-Wno-format-nonliteral
-		# wolfSSL
-		-Wmicrosoft-static-assert
 	)
 endif()

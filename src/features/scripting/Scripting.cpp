@@ -247,7 +247,7 @@ void JsScript::log(Log::Level level, std::string_view message) {
         Loader::get()->queueInMainThread([weak = weak_from_this()] {
             if (auto ptr = weak.lock()) {
                 ptr->m_queuedLogEvent = false;
-                JsScriptLoggedEvent(ptr).post();
+                JsScriptLoggedEvent(ptr).send(ptr);
             }
         });
     }
@@ -399,7 +399,11 @@ bool JsScript::run() {
     editor.setProperty("getSelectedObjects", m_ctx.createFunction(
         "<Editor>.getSelectedObjects",
         [](qjs::Context, qjs::Value) {
-            return ccArrayToVector<GameObject*>(EditorUI::get()->getSelectedObjects());
+            std::vector<GameObject*> result;
+            for (auto obj : CCArrayExt<GameObject*>(EditorUI::get()->getSelectedObjects())) {
+                result.push_back(obj);
+            }
+            return result;
         }
     ));
     editor.setProperty("getViewCenter", m_ctx.createFunction(
@@ -438,16 +442,7 @@ bool JsScript::tick() {
     return true;
 }
 
-JsScriptLoggedEvent::JsScriptLoggedEvent(std::shared_ptr<JsScript> script) : script(script) {}
 
-JsScriptLoggedFilter::JsScriptLoggedFilter(std::shared_ptr<JsScript> script) : m_script(script) {}
-
-ListenerResult JsScriptLoggedFilter::handle(std::function<Callback> fn, JsScriptLoggedEvent* ev) {
-    if (m_script == ev->script) {
-        fn(ev);
-    }
-    return ListenerResult::Propagate;
-}
 
 ScriptManager* ScriptManager::get() {
     static auto ret = ScriptManager();

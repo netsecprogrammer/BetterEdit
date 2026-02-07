@@ -77,8 +77,9 @@ bool ScriptNode::init(RunScriptPopup* popup, std::shared_ptr<JsScript> script, f
     m_selectionSprite->setScale(.7f);
     this->addChildAtPosition(m_selectionSprite, Anchor::Center, ccp(0, 0));
 
-    m_logListener.setFilter(JsScriptLoggedFilter(m_script));
-    m_logListener.bind(this, &ScriptNode::onLogged);
+    m_logListener = JsScriptLoggedEvent(m_script).listen([this](std::shared_ptr<JsScript>) {
+        this->onLogged(nullptr);
+    });
 
     this->updateState();
 
@@ -89,7 +90,7 @@ void ScriptNode::onRun(CCObject*) {
     m_popup->view(m_script);
     m_script->run();
 }
-void ScriptNode::onLogged(JsScriptLoggedEvent*) {
+void ScriptNode::onLogged(std::shared_ptr<JsScript>) {
     this->updateState();
 }
 void ScriptNode::onLogs(CCObject*) {
@@ -139,7 +140,8 @@ void ScriptNode::updateState() {
 
 std::weak_ptr<JsScript> RunScriptPopup::s_selected = std::weak_ptr<JsScript>();
 
-bool RunScriptPopup::setup() {
+bool RunScriptPopup::init() {
+    if (!Popup::init(380, 280)) return false;
     m_noElasticity = true;
     this->setTitle("Run Script");
 
@@ -186,7 +188,7 @@ bool RunScriptPopup::setup() {
     );
     m_buttonMenu->addChildAtPosition(reloadBtn, Anchor::BottomLeft, ccp(20, 20));
 
-    m_logListener.bind(this, &RunScriptPopup::onLogged);
+    // m_logListener is set per-script in view(), not globally here
 
     // On first boot try reloading scripts fully
     static bool LOADED_SCRIPTS = false;
@@ -262,7 +264,7 @@ void RunScriptPopup::updateLogs() {
     m_logsList->m_contentLayer->updateLayout();
 }
 
-void RunScriptPopup::onLogged(JsScriptLoggedEvent*) {
+void RunScriptPopup::onLogged(std::shared_ptr<JsScript>) {
     this->updateLogs();
 }
 void RunScriptPopup::onReload(CCObject* sender) {
@@ -276,7 +278,7 @@ void RunScriptPopup::onReload(CCObject* sender) {
 
 RunScriptPopup* RunScriptPopup::create() {
     auto ret = new RunScriptPopup();
-    if (ret && ret->initAnchored(380, 280)) {
+    if (ret && ret->init()) {
         ret->autorelease();
         return ret;
     }
@@ -287,7 +289,9 @@ RunScriptPopup* RunScriptPopup::create() {
 void RunScriptPopup::view(std::shared_ptr<JsScript> script) {
     s_selected = script;
     this->updateLogs();
-    m_logListener.setFilter(JsScriptLoggedFilter(script));
+    m_logListener = JsScriptLoggedEvent(script).listen([this](std::shared_ptr<JsScript>) {
+        this->onLogged(nullptr);
+    });
     for (auto node : CCArrayExt<ScriptNode*>(m_list->m_contentLayer->getChildren())) {
         node->updateState();
     }
@@ -295,7 +299,7 @@ void RunScriptPopup::view(std::shared_ptr<JsScript> script) {
 
 class $modify(ScriptingUI, EditorUI) {
     struct Fields final {
-        OnUIHide onUIHide;
+        geode::ListenerHandle onUIHide;
     };
 
     $override
@@ -315,9 +319,8 @@ class $modify(ScriptingUI, EditorUI) {
             menu->addChild(btn);
             menu->updateLayout();
 
-            m_fields->onUIHide.setFilter(this);
-            m_fields->onUIHide.bind([btn](UIShowEvent* ev) {
-                btn->setVisible(ev->show);
+            m_fields->onUIHide = UIShowEvent(this).listen([btn](EditorUI* ui, bool show) {
+                btn->setVisible(show);
             });
         }
         

@@ -8,12 +8,13 @@
 using namespace pro;
 using namespace pro::server;
 
-class ActivatingLicensePopup : public Popup<ActivateLicensePopup*, std::string const&> {
+class ActivatingLicensePopup : public Popup {
 protected:
     Ref<ActivateLicensePopup> m_popup;
     EventListener<ServerRequest<ActivatedLicense>> m_listener;
 
-    bool setup(ActivateLicensePopup* popup, std::string const& key) override {
+    bool init(ActivateLicensePopup* popup, std::string const& key) {
+        if (!Popup::init(180, 100, "square01_001.png", CCRectZero)) return false;
         m_closeBtn->setVisible(false);
         m_popup = popup;
 
@@ -76,7 +77,7 @@ protected:
 public:
     static ActivatingLicensePopup* create(ActivateLicensePopup* popup, std::string const& key) {
         auto ret = new ActivatingLicensePopup();
-        if (ret && ret->initAnchored(180, 100, popup, key, "square01_001.png", CCRectZero)) {
+        if (ret && ret->init(popup, key)) {
             ret->autorelease();
             return ret;
         }
@@ -85,7 +86,8 @@ public:
     }
 };
 
-bool ActivateLicensePopup::setup() {
+bool ActivateLicensePopup::init() {
+    if (!Popup::init(290, 200)) return false;
     this->setTitle("Activate Supporter");
 
     auto activateTitle = CCLabelBMFont::create("Enter Your Activation Key", "goldFont.fnt");
@@ -252,7 +254,7 @@ void ActivateLicensePopup::onActivate(CCObject*) {
 
 ActivateLicensePopup* ActivateLicensePopup::create() {
     auto ret = new ActivateLicensePopup();
-    if (ret && ret->initAnchored(290, 200)) {
+    if (ret && ret->init()) {
         ret->autorelease();
         return ret;
     }

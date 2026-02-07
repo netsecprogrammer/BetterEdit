@@ -5,7 +5,8 @@
 using namespace pro;
 using namespace pro::server;
 
-bool SupportersPopup::setup() {
+bool SupportersPopup::init() {
+    if (!Popup::init(358, 270, "GJ_square02.png")) return false;
     m_noElasticity = true;
 
     this->setTitle("BetterEdit Supporters");
@@ -201,7 +202,7 @@ void SupportersPopup::onShowMe(CCObject* sender) {
 
 SupportersPopup* SupportersPopup::create() {
     auto ret = new SupportersPopup();
-    if (ret && ret->initAnchored(358, 270, "GJ_square02.png")) {
+    if (ret && ret->init()) {
         ret->autorelease();
         return ret;
     }
